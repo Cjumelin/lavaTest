@@ -1,0 +1,20 @@
+{
+  "name": "lava_test",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@lavanet/lava-sdk": "^0.16.1",
+    "@types/jest": "^29.5.3",
+    "@types/node": "^16.18.39",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
+  },
+  "scripts": {
+    "test": "jest --watchAll"
+  },
+  "devDependencies": {
+    "@jest/globals": "^29.6.1",
+    "jest": "^29.6.1",
+    "ts-jest": "^29.1.1"
+  }
+}
