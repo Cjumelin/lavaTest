@@ -22,8 +22,10 @@ type RPCCallArgs = {
 }
 
 const RPCCall = (lavaClient: LavaSDK) =>
-    async (rpcCallArgs: RPCCallArgs) =>
-        JSON.parse(await lavaClient.sendRelay(rpcCallArgs));
+    async (rpcCallArgs: RPCCallArgs) => {
+        const res = await lavaClient.sendRelay(rpcCallArgs)
+        return JSON.parse(res);
+    }
 
 export const getBlockchain = (lavaClient: LavaSDK) =>
     async () => RPCCall(lavaClient)

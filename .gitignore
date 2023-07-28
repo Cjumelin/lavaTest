@@ -2,7 +2,8 @@
 .env
 lavaKey.json
 lavad
-
+dist/ 
+dist
 # dependencies
 /node_modules
 /.pnp

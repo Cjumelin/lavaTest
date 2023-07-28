@@ -152,6 +152,7 @@ const config: Config = {
 
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},
+  modulePathIgnorePatterns: ["<rootDir>/dist/"]
 
   // Adds a location field to test results
   // testLocationInResults: false,
