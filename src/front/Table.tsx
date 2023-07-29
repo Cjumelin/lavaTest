@@ -25,10 +25,10 @@ export default function Table({ relayCountPerChain }: TableProps) {
                                         <thead>
                                             <tr>
                                                 <th scope="col" className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">
-                                                    Chain
+                                                    Chain Name
                                                 </th>
                                                 <th scope="col" className="px-3 py-3.5 text-left text-sm font-semibold text-white">
-                                                    Number of relay message
+                                                    Number of relays
                                                 </th>
                                             </tr>
                                         </thead>

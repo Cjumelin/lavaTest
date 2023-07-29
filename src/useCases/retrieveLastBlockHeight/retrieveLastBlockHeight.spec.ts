@@ -1,6 +1,6 @@
 import { LavaSDK } from "@lavanet/lava-sdk";
-import { lavaBlockchainResponse } from "../retrieveLastBlockHeight/lavaBlockchainResponse.stub";
-import { retrieveLastBockHeight } from "../retrieveLastBlockHeight/retrieveLastBlockHeight";
+import { lavaBlockchainResponse } from "./lavaBlockchainResponse.stub";
+import { retrieveLastBockHeight } from "./retrieveLastBlockHeight";
 
 
 describe("sandbox", () => {

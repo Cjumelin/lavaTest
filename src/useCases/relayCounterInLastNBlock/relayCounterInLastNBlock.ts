@@ -6,27 +6,28 @@ import { getBlocks } from "../../utils/LavaClient";
 import { MsgRelayPayment } from "../../utils/src/codec/pairing/tx";
 
 // Retrieve decoded transaction on a flat array
-const getTransactions = (txs: any) => txs.map((block: any) =>
+const getTransactions = (blocks: any[]) => blocks.map((block: any) =>
     block.block.data.txs
         .map(
             (tx: any) => Tx.decode(Buffer.from(tx, "base64"))
         )
 ).flat();
 
+
 // Retrieve RelayPaymentMessage and return them decoded
-const getDecodedRelayPaymentMsg = (txs: any) => txs
-    .map((tx: any) => tx.body.messages)
+const getDecodedRelayPaymentMsg = (txs: Tx[]) => txs
+    .map((tx: Tx) => tx?.body?.messages)
     .flat()
     .filter(
         (message: any) =>
             message.typeUrl === '/lavanet.lava.pairing.MsgRelayPayment')
     .map(
-        (message: any) =>
+        (message: any): MsgRelayPayment =>
             MsgRelayPayment.decode(new Uint8Array(message.value))
     )
 
 // retrieve relays in a flatten array
-const getRelays = (messages: any) => messages
+const getRelays = (messages: any): any[] => messages
     .map((msg: any) => msg.relays)
     .flat()
 
@@ -81,11 +82,16 @@ export const relayCounterInLastNBlock = async (
 ): Promise<RelayCount[]> => {
     const blocks = await getBlocks(lavaClient)(lastBlockHeight, nBlockToExplore);
 
+    const decodedTxs = getDecodedRelayPaymentMsg(
+        getTransactions(blocks.result.blocks)
+    )
+
+    if (decodedTxs.length === 0)
+        throw new Error("No transaction of type \"/lavanet.lava.pairing.MsgRelayPayment\"")
+
     return countRelayByChain(
         getRelays(
-            getDecodedRelayPaymentMsg(
-                getTransactions(blocks.result.blocks)
-            )
+            decodedTxs
         )
     )
 }
