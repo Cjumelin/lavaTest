@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { relayCounterInLastNBlock } from '../useCases/relayCounterInLastNBlock/relayCounterInLastNBlock';
+import { RelayCount, relayCounterInLastNBlock } from '../useCases/relayCounterInLastNBlock/relayCounterInLastNBlock';
 import { retrieveLastBockHeight } from '../useCases/retrieveLastBlockHeight/retrieveLastBlockHeight';
 import { generateLavaClient } from '../utils/LavaClient';
 import { poll } from '../utils/polling';
 import './App.css';
+import Table from './Table';
 import logo from './logo.svg';
 
 export default function App() {
 
   const [isRelayCountLoading, setIsRelayCountLoading] = useState(true);
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<RelayCount[]>([]);
 
   useEffect(() => {
     startPolling();
@@ -25,7 +26,8 @@ export default function App() {
         lavaClient,
         await retrieveLastBockHeight(lavaClient)
       );
-      setData(res);
+      setData(res.slice(0, 10));
+      setIsRelayCountLoading(false)
     });
   }
 
@@ -36,7 +38,7 @@ export default function App() {
           <h1>Loading your awsome data...</h1>
           <img src={logo} className="App-logo" alt="logo" />
         </>
-        ) : (<>{data}</>)
+        ) : (<Table relayCountPerChain={data}></Table>)
       }
       </div>
     </div>

@@ -72,11 +72,13 @@ const countRelayByChain = (relays: any) => {
 
 }
 
+export type RelayCount = { name: string, count: string };
+
 export const relayCounterInLastNBlock = async (
     lavaClient: LavaSDK,
     lastBlockHeight: number,
     nBlockToExplore: number = 20
-) => {
+): Promise<RelayCount[]> => {
     const blocks = await getBlocks(lavaClient)(lastBlockHeight, nBlockToExplore);
 
     return countRelayByChain(
