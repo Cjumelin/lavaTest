@@ -80,8 +80,7 @@ export const relayCounterInBlocks = (
         getTransactions(blocks)
     )
 
-    if (decodedTxs.length === 0)
-        throw new Error("No transaction of type \"/lavanet.lava.pairing.MsgRelayPayment\"")
+    if (decodedTxs.length === 0) return [];
 
     return countRelayByChain(
         getRelays(

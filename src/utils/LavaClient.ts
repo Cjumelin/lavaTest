@@ -17,7 +17,7 @@ export const generateLavaClient = async (
             geolocation: "2",
         });
     } catch (e: any) {
-        throw new Error(e)
+        throw new Error(JSON.parse(e));
     }
 
     if ((lavaClient as any).error)
