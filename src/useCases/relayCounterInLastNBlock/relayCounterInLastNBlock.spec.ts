@@ -1,21 +1,10 @@
-import { LavaSDK } from "@lavanet/lava-sdk";
-import { lavaBlockchainResponse } from "../retrieveLastBlockHeight/lavaBlockchainResponse.stub";
-import { retrieveLastBockHeight } from "../retrieveLastBlockHeight/retrieveLastBlockHeight";
 import { lavaBlockSearchResponse } from "./lavaBlockSearchResponse.stub";
-import { relayCounterInLastNBlock } from "./relayCounterInLastNBlock";
+import { relayCounterInBlocks } from "./relayCounterInLastNBlock";
 
 describe("sandbox", () => {
     it("retrieve number in relay in the last 20 block of lavachain", async () => {
-        const lavaClientBlockchainStub = {
-            sendRelay: () => JSON.stringify(lavaBlockchainResponse)
-        } as unknown as LavaSDK;
-        const lavaClientBlockSearchStub = {
-            sendRelay: () => JSON.stringify(lavaBlockSearchResponse)
-        } as unknown as LavaSDK;
-
-        let res = await relayCounterInLastNBlock(
-            lavaClientBlockSearchStub,
-            await retrieveLastBockHeight(lavaClientBlockchainStub)
+        let res = await relayCounterInBlocks(
+            lavaBlockSearchResponse.result.blocks,
         );
         expect(res).toEqual([
             { name: 'ETH1', count: '23490' },

@@ -2,10 +2,11 @@ import React from "react"
 import { RelayCount } from "../useCases/relayCounterInLastNBlock/relayCounterInLastNBlock"
 
 type TableProps = {
-    relayCountPerChain: RelayCount[]
+    relayCountPerChain: RelayCount[],
+    lastBlockHeight: number
 }
 
-export default function Table({ relayCountPerChain }: TableProps) {
+export default function Table({ relayCountPerChain, lastBlockHeight }: TableProps) {
     return (
         <div className="bg-gray-900">
             <div className="mx-auto max-w-7xl">
@@ -16,6 +17,9 @@ export default function Table({ relayCountPerChain }: TableProps) {
                                 <h1 className="text-base font-semibold leading-6 text-white">
                                     Top 10 chains on lava by the number of relays pass in
                                     Lava Blockchain in the last 20 blocks</h1>
+                                <p className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">
+                                    Last block height {lastBlockHeight}
+                                </p>
                             </div>
                         </div>
                         <div className="mt-8 flow-root">

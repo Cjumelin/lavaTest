@@ -1,8 +1,6 @@
 //Import lava-sdk
-import { LavaSDK } from "@lavanet/lava-sdk";
 import { Tx } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import Long from "long";
-import { getBlocks } from "../../utils/LavaClient";
 import { MsgRelayPayment } from "../../utils/src/codec/pairing/tx";
 
 // Retrieve decoded transaction on a flat array
@@ -57,10 +55,10 @@ const countRelayByChain = (relays: any) => {
     }
 
     return relayCountByChainReadable
-        //sort then by desc
+        //sort them by count desc
         .sort(
             (a: ChainRelayCount, b: ChainRelayCount) =>
-                a.count.greaterThan(b.count) ? -1 : 1
+                a.count.greaterThan(b.count) ? -1 : 1 // compare Long types
         )
         // Making them human readable
         .map(
@@ -75,15 +73,11 @@ const countRelayByChain = (relays: any) => {
 
 export type RelayCount = { name: string, count: string };
 
-export const relayCounterInLastNBlock = async (
-    lavaClient: LavaSDK,
-    lastBlockHeight: number,
-    nBlockToExplore: number = 20
-): Promise<RelayCount[]> => {
-    const blocks = await getBlocks(lavaClient)(lastBlockHeight, nBlockToExplore);
-
+export const relayCounterInBlocks = (
+    blocks: any
+): RelayCount[] => {
     const decodedTxs = getDecodedRelayPaymentMsg(
-        getTransactions(blocks.result.blocks)
+        getTransactions(blocks)
     )
 
     if (decodedTxs.length === 0)

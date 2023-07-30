@@ -1,6 +1,9 @@
-const pollingTime = 1000 * 60 * 5; // Every 5 minutes
+const defaultPollingTime = 1000 * 20; // Every 20 seconds
 
-export const poll = async (fn: () => Promise<any>) => {
+export const poll = async (
+    fn: () => Promise<any>,
+    pollingTime: number = defaultPollingTime
+) => {
     await fn();
-    setTimeout(() => poll(fn), pollingTime);
+    setTimeout(() => poll(fn, pollingTime), pollingTime);
 }

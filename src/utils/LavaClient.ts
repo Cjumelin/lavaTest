@@ -30,6 +30,13 @@ type RPCCallArgs = {
     params: string[]
 }
 
+const unwrapJSONResponse = (res: any) => {
+    const unwrappedRes = JSON.parse(res);
+    if (unwrappedRes.error)
+        throw new Error(JSON.stringify(unwrappedRes.error));
+    return unwrappedRes.result
+}
+
 const RPCCall = (lavaClient: LavaSDK) =>
     async (rpcCallArgs: RPCCallArgs) => {
         let res: any;
@@ -38,9 +45,7 @@ const RPCCall = (lavaClient: LavaSDK) =>
         } catch (e: any) {
             throw new Error(e);
         }
-        if (res.error)
-            throw new Error(res.error);
-        return JSON.parse(res);
+        return unwrapJSONResponse(res)
     }
 
 export const getBlockchain = (lavaClient: LavaSDK) =>

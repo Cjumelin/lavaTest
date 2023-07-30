@@ -1,6 +1,6 @@
-import { relayCounterInLastNBlock } from "./useCases/relayCounterInLastNBlock/relayCounterInLastNBlock";
+import { relayCounterInBlocks } from "./useCases/relayCounterInLastNBlock/relayCounterInLastNBlock";
 import { retrieveLastBockHeight } from "./useCases/retrieveLastBlockHeight/retrieveLastBlockHeight";
-import { generateLavaClient } from "./utils/LavaClient";
+import { generateLavaClient, getBlocks } from "./utils/LavaClient";
 import { poll } from "./utils/polling";
 
 async function init() {
@@ -10,11 +10,16 @@ async function init() {
             rpcInterface: 'tendermintrpc'
         });
         poll(async () => {
-            const res = await relayCounterInLastNBlock(
-                lavaClient,
-                await retrieveLastBockHeight(lavaClient)
+            let res: any;
+            try {
+                res = await getBlocks(lavaClient)(await retrieveLastBockHeight(lavaClient), 20)
+            } catch (e) {
+                console.log(e)
+            }
+            const relayCountPerChain = relayCounterInBlocks(
+                res.blocks
             );
-            console.log(res.slice(0, 10));
+            console.log(relayCountPerChain.slice(0, 10));
         });
     } catch (e) {
         console.log(e)

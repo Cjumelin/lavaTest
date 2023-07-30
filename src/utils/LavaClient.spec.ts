@@ -12,5 +12,11 @@ describe('Lava client', () => {
             20
         )
         expect(res.result.blocks.length).toEqual(20)
+
+        const res2 = await getBlocks(lavaClient)(
+            await retrieveLastBockHeight(lavaClient),
+            1
+        )
+        expect(res2.result.blocks.length).toEqual(1)
     })
 })
