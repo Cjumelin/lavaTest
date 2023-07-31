@@ -32,8 +32,9 @@ type RPCCallArgs = {
 
 const unwrapJSONResponse = (res: any) => {
     const unwrappedRes = JSON.parse(res);
-    if (unwrappedRes.error)
-        throw new Error(JSON.stringify(unwrappedRes.error));
+    if (unwrappedRes.error) {
+        throw new Error(unwrappedRes.error);
+    }
     return unwrappedRes.result
 }
 
@@ -43,7 +44,7 @@ const RPCCall = (lavaClient: LavaSDK) =>
         try {
             res = await lavaClient.sendRelay(rpcCallArgs)
         } catch (e: any) {
-            throw new Error(e);
+            throw new Error(JSON.stringify(e));
         }
         return unwrapJSONResponse(res)
     }

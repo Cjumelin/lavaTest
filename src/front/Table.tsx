@@ -1,12 +1,11 @@
 import React from "react"
-import { RelayCount } from "../useCases/relayCounterInLastNBlock/relayCounterInLastNBlock"
+import { BlockListState } from "../useCases/relayCounterInLastNBlock/blockList"
 
 type TableProps = {
-    relayCountPerChain: RelayCount[],
-    lastBlockHeight: number
+    blockListState: BlockListState
 }
 
-export default function Table({ relayCountPerChain, lastBlockHeight }: TableProps) {
+export default function Table({ blockListState: blockList }: TableProps) {
     return (
         <div className="bg-gray-900">
             <div className="mx-auto max-w-7xl">
@@ -18,7 +17,7 @@ export default function Table({ relayCountPerChain, lastBlockHeight }: TableProp
                                     Top 10 chains on lava by the number of relays pass in
                                     Lava Blockchain in the last 20 blocks</h1>
                                 <p className="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">
-                                    Last block height {lastBlockHeight}
+                                    Last block height {blockList.lastBlockHeight}
                                 </p>
                             </div>
                         </div>
@@ -37,14 +36,16 @@ export default function Table({ relayCountPerChain, lastBlockHeight }: TableProp
                                             </tr>
                                         </thead>
                                         <tbody className="divide-y divide-gray-800">
-                                            {relayCountPerChain.map((relayCount, ind) => (
-                                                <tr key={ind}>
-                                                    <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
-                                                        {relayCount.name}
-                                                    </td>
-                                                    <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">{relayCount.count}</td>
-                                                </tr>
-                                            ))}
+                                            {blockList.countRelayPerChain
+                                                .slice(0, 10)
+                                                .map((relayCount: any, ind: number) => (
+                                                    <tr key={ind}>
+                                                        <td className="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
+                                                            {relayCount.name}
+                                                        </td>
+                                                        <td className="whitespace-nowrap px-3 py-4 text-sm text-gray-300">{relayCount.count}</td>
+                                                    </tr>
+                                                ))}
                                         </tbody>
                                     </table>
                                 </div>

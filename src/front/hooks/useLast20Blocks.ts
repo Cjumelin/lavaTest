@@ -6,32 +6,40 @@ import { useLavaClient } from "./useLavaClient";
 
 export const useLast20Blocks = () => {
 
-    const lavaClient = useLavaClient()
+    const lavaClient = useLavaClient();
 
     const [lastBlockHeight, setLastBlockHeight] = useState<number>(0);
-    const [last20blocks, setLast20Blocks] = useState<any[]>([])
-    const startPolling = useCallback(async () => { // Poll block height every 20 seconde
+    const [last20blocks, setLast20Blocks] = useState<any[]>([]);
+    const [errors, setErrors] = useState<any[]>([]);
+
+    const startPolling = useCallback(async () => {
+        // Poll block height every 20 seconde
         poll(async () => {
-            let lastBlockHeightRes = await retrieveLastBockHeight(lavaClient!) // tender mint rpc call to retrieve the last block height
-            if (lastBlockHeight !== lastBlockHeightRes)
-                setLastBlockHeight(lastBlockHeightRes); // set new block height if different from block height stored in react
+            // tender mint rpc call to retrieve the last block height
+            let lastBlockHeightRes = await retrieveLastBockHeight(lavaClient!)
+            if (lastBlockHeight !== lastBlockHeightRes) {
+                // set new block height if different from block height stored in react
+                setLastBlockHeight(lastBlockHeightRes);
+            }
         });
-    }, [lastBlockHeight, lavaClient])
+    }, [lastBlockHeight, lavaClient]);
 
     useEffect(() => {
-        if (lavaClient)
-            startPolling(); // after lavaClient instanciation
-    }, [lavaClient, startPolling]);
+        // after lavaClient instanciation
+        if (lavaClient) {
+            startPolling();
+        }
+    }, [lavaClient]);
 
+    // reset polling values on error
     const resetPolling = useCallback(() => {
         setLastBlockHeight(0);
         setLast20Blocks([]);
-    }, [])
+    }, []);
 
     const retrieveLastNBlock = useCallback(async () => {
         let res: any;
         try {
-
             res = await getBlocks(lavaClient!)(
                 lastBlockHeight,
                 last20blocks.length ?
@@ -39,20 +47,26 @@ export const useLast20Blocks = () => {
                     20, // retrieve the last 20 blocks if blocks havn't been retrieved
             );
         } catch (e) {
+            setErrors([...errors, e]);
             resetPolling();
+            return;
         }
         setLast20Blocks([
             ...res.blocks,
             ...last20blocks
-        ].slice(0, 20))
-    }, [last20blocks, lastBlockHeight, lavaClient, resetPolling])
+        ].slice(0, 20));
+    }, [lastBlockHeight]);
 
     useEffect(() => {
         if (lastBlockHeight) { // avoid first render
             retrieveLastNBlock(); // retrieve last 20 block
         }
-    }, [lastBlockHeight, retrieveLastNBlock]);
+    }, [lastBlockHeight]);
 
 
-    return { last20blocks, lastBlockHeight }
+    return {
+        last20blocks,
+        lastBlockHeight,
+        errors
+    }
 }

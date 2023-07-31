@@ -1,12 +1,13 @@
+import { BlockList } from "./blockList";
 import { lavaBlockSearchResponse } from "./lavaBlockSearchResponse.stub";
-import { relayCounterInBlocks } from "./relayCounterInLastNBlock";
 
 describe("sandbox", () => {
-    it("retrieve number in relay in the last 20 block of lavachain", async () => {
-        let res = await relayCounterInBlocks(
+    it("retrieve number in relay in the last 20 block of lavachain", () => {
+        let blockList = new BlockList(
             lavaBlockSearchResponse.result.blocks,
-        );
-        expect(res).toEqual([
+            0
+        ).state.countRelayPerChain;
+        expect(blockList).toEqual([
             { name: 'ETH1', count: '23490' },
             { name: 'POLYGON1', count: '12511' },
             { name: 'EVMOS', count: '10443' },
@@ -34,6 +35,30 @@ describe("sandbox", () => {
             { name: 'COS5T', count: '2' },
             { name: 'COS5', count: '1' }
         ]
+        );
+    })
+    it("inspect different msg types", async () => {
+        let res = new BlockList(
+            lavaBlockSearchResponse.result.blocks,
+            0
+        ).state.msgPerTx.flat().map((msg: any) => msg.typeUrl)
+            .reduce(
+                (acc: any, curr: any) => {
+                    acc[curr] = acc[curr] + 1 || 0
+                    return acc
+                },
+                {}
+            );
+        expect(res).toEqual(
+            {
+                "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward": 14,
+                "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission": 9,
+                "/cosmos.staking.v1beta1.MsgDelegate": 5,
+                "/lavanet.lava.conflict.MsgConflictVoteCommit": 70,
+                "/lavanet.lava.conflict.MsgConflictVoteReveal": 0,
+                "/lavanet.lava.conflict.MsgDetection": 6,
+                "/lavanet.lava.pairing.MsgRelayPayment": 41
+            }
         );
     })
 })

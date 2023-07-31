@@ -1,56 +1,36 @@
 import { LavaSDK } from "@lavanet/lava-sdk";
-import { RelayCount, relayCounterInBlocks } from "./useCases/relayCounterInLastNBlock/relayCounterInLastNBlock";
+import { BlockList, BlockListState } from "./useCases/relayCounterInLastNBlock/blockList";
 import { retrieveLastBockHeight } from "./useCases/retrieveLastBlockHeight/retrieveLastBlockHeight";
 import { generateLavaClient, getBlocks } from "./utils/LavaClient";
 import { poll } from "./utils/polling";
 
-type Block = any
-
-type BlockList = {
-    lastBlockHeight: number,
-    blocks: Block[],
-    relayCountPerChain: RelayCount[],
+interface BlockListApiGateway {
     retrieveLastBlockHeight: () => Promise<number>,
-
-    // side effect notice by returning void
-    refreshBlocks: (...args: any[]) => Promise<void>,
-    updateRelayCountPerChain: () => void
+    retrieveBlocks: (blocks: any[], lastHeight: number) => Promise<any[]>,
 }
 
-const blockListCreator = (lavaClient: LavaSDK): BlockList => ({
-    lastBlockHeight: 0,
-    blocks: [],
-    relayCountPerChain: [],
-    refreshBlocks: async function () {
+const initBlockListApiGateway = (lavaClient: LavaSDK): BlockListApiGateway => ({
+    retrieveBlocks: async function (blocks: any[], lastHeight: number) {
         let res = await getBlocks(lavaClient)(
-            this.lastBlockHeight,
-            this.blocks.length ?
+            lastHeight,
+            blocks.length ?
                 1 : // retrieve the last block if blocks have been retrieved
                 20, // retrieve the last 20 blocks if blocks havn't been retrieved
         );
-        this.blocks = [
+        return [
             ...res.blocks,
-            ...this.blocks
+            ...blocks
         ].slice(0, 20)
     },
     retrieveLastBlockHeight: async () => await retrieveLastBockHeight(lavaClient),
-    updateRelayCountPerChain: function () {
-        this.relayCountPerChain = relayCounterInBlocks(this.blocks);
-    }
+
 })
 
-const updateBlockList = async (blockList: BlockList, newBlockHeight: number) => {
-    blockList.lastBlockHeight = newBlockHeight;
-    await blockList.refreshBlocks() // refresh block list with the last 20 blocks
-    const relayCountPerChain = relayCounterInBlocks(
-        blockList.blocks
-    );
-}
-const showResult = ({ lastBlockHeight, relayCountPerChain }: BlockList) => {
-    if (relayCountPerChain.length === 0)
+const showResult = ({ lastBlockHeight, countRelayPerChain }: BlockListState) => {
+    if (countRelayPerChain.length === 0)
         console.log("No transaction of type \"/lavanet.lava.pairing.MsgRelayPayment\"")
     console.log(`Last block height: ${lastBlockHeight}`);
-    console.log("Top 10 chain sorted by number of relay\n", relayCountPerChain.slice(0, 10), "\n");
+    console.log("Top 10 chain sorted by number of relay\n", countRelayPerChain.slice(0, 10), "\n");
 }
 
 async function init() {
@@ -58,17 +38,24 @@ async function init() {
         chainID: 'LAV1',
         rpcInterface: 'tendermintrpc'
     });
-    let blockList = blockListCreator(lavaClient);
+    let blockListApiGateway = initBlockListApiGateway(lavaClient);
+    let blockList: BlockList = new BlockList([], 0);
     poll(async () => {
         try {
-            const lastBlockHeightRes = await blockList.retrieveLastBlockHeight()
-            if (lastBlockHeightRes !== blockList.lastBlockHeight) {
-                await updateBlockList(blockList, lastBlockHeightRes);
-                showResult(blockList)
+            const lastHeight = await blockListApiGateway.retrieveLastBlockHeight();
+            if (lastHeight !== blockList.state.lastBlockHeight) {
+                blockList = new BlockList(
+                    await blockListApiGateway.retrieveBlocks(
+                        blockList.state.blocks,
+                        lastHeight
+                    ),
+                    lastHeight
+                );
+                showResult(blockList.state);
             }
         } catch (e) {
-            console.log(e)
-            blockList = blockListCreator(lavaClient); // reset value adn retry in case of error (e.g: -32603 => Code::InternalError)
+            console.log(e);
+            blockList = new BlockList([], 0); // reset value adn retry in case of error (e.g: -32603 => Code::InternalError)
         }
     }, 1000);
 };
