@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { retrieveLastBockHeight } from "../../useCases/retrieveLastBlockHeight/retrieveLastBlockHeight";
-import { getBlocks } from "../../utils/LavaClient";
 import { poll } from "../../utils/polling";
-import { useLavaClient } from "./useLavaClient";
+import { useLavaGateway } from "./useLavaGateway";
 
 export const useLast20Blocks = () => {
-
-    const lavaClient = useLavaClient();
+    const lavaGateway = useLavaGateway();
 
     const [lastBlockHeight, setLastBlockHeight] = useState<number>(0);
     const [last20blocks, setLast20Blocks] = useState<any[]>([]);
@@ -16,20 +14,20 @@ export const useLast20Blocks = () => {
         // Poll block height every 20 seconde
         poll(async () => {
             // tender mint rpc call to retrieve the last block height
-            let lastBlockHeightRes = await retrieveLastBockHeight(lavaClient!)
+            let lastBlockHeightRes = await retrieveLastBockHeight(lavaGateway!)
             if (lastBlockHeight !== lastBlockHeightRes) {
                 // set new block height if different from block height stored in react
                 setLastBlockHeight(lastBlockHeightRes);
             }
         });
-    }, [lastBlockHeight, lavaClient]);
+    }, [lastBlockHeight, lavaGateway]);
 
     useEffect(() => {
-        // after lavaClient instanciation
-        if (lavaClient) {
+        // after lavaGateway instanciation
+        if (lavaGateway) {
             startPolling();
         }
-    }, [lavaClient]);
+    }, [lavaGateway]);
 
     // reset polling values on error
     const resetPolling = useCallback(() => {
@@ -40,7 +38,7 @@ export const useLast20Blocks = () => {
     const retrieveLastNBlock = useCallback(async () => {
         let res: any;
         try {
-            res = await getBlocks(lavaClient!)(
+            res = await lavaGateway!.getBlocks(
                 lastBlockHeight,
                 last20blocks.length ?
                     1 : // retrieve the last block if blocks have been retrieved
@@ -67,6 +65,7 @@ export const useLast20Blocks = () => {
     return {
         last20blocks,
         lastBlockHeight,
-        errors
+        errors,
+        setErrors
     }
 }

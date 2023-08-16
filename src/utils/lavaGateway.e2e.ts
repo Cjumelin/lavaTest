@@ -1,20 +1,20 @@
 import { retrieveLastBockHeight } from "../useCases/retrieveLastBlockHeight/retrieveLastBlockHeight"
-import { generateLavaClient, getBlocks } from "./LavaClient"
+import { generateLavaGateway } from "./lavaGateway"
 
-describe('Lava client', () => {
+describe('Lava gateway', () => {
     it('should retrieve N blocks', async () => {
-        const lavaClient = await generateLavaClient({
+        const lavaGateway = await generateLavaGateway({
             chainID: 'LAV1',
             rpcInterface: 'tendermintrpc'
         })
-        const res = await getBlocks(lavaClient)(
-            await retrieveLastBockHeight(lavaClient),
+        const res = await lavaGateway.getBlocks(
+            await retrieveLastBockHeight(lavaGateway),
             20
         )
         expect(res.blocks.length).toEqual(20)
 
-        const res2 = await getBlocks(lavaClient)(
-            await retrieveLastBockHeight(lavaClient),
+        const res2 = await lavaGateway.getBlocks(
+            await retrieveLastBockHeight(lavaGateway),
             1
         )
         expect(res2.blocks.length).toEqual(1)

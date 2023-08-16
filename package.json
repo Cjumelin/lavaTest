@@ -33,9 +33,11 @@
   },
   "scripts": {
     "start": "react-app-rewired start",
+    "start:inMemory": "REACT_APP_ENV=inMemory react-app-rewired start",
     "build": "react-app-rewired build",
     "eject": "react-scripts eject",
-    "test": "jest --watchAll",
+    "test:unit": "jest --watchAll --testMatch **/*.spec.ts",
+    "test:e2e": "jest --watchAll --testMatch **/*.e2e.ts",
     "cli": "ts-node src/cli.ts"
   },
   "devDependencies": {

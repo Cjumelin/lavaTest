@@ -12,7 +12,7 @@ export const useBlockList = () => {
         setBlockListState
     ] = useState<BlockListState>(new BlockList([], 0).state);
 
-    const { last20blocks, lastBlockHeight, errors } = useLast20Blocks();
+    const { last20blocks, lastBlockHeight, errors, setErrors } = useLast20Blocks();
 
     useEffect(() => {
         setIsBlockListLoading(true)
@@ -33,6 +33,7 @@ export const useBlockList = () => {
     return {
         blockListState,
         isBlockListLoading,
-        errors
+        errors,
+        setErrors
     }
 }

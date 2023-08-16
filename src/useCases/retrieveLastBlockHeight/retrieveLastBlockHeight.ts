@@ -1,8 +1,7 @@
-import { LavaSDK } from "@lavanet/lava-sdk";
-import { getBlockchain } from "../../utils/LavaClient";
+import { LavaGateway } from "../../utils/lavaGateway";
 
 export const retrieveLastBockHeight =
-    async (lavaClient: LavaSDK) => {
-        const res = await getBlockchain(lavaClient)();
+    async (lavaGateway: LavaGateway) => {
+        const res = await lavaGateway.getBlockchain();
         return parseInt(res.last_height);
     }
